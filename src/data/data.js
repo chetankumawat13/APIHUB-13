@@ -29,7 +29,7 @@ export const apis = [
       api_title: "Weather Info",
       api_description: "Free API for current weather, forecast, and climate data",
       api_category: "Weather",
-      api_img: "/wi.png",
+      api_img: "/winfo.jpg",
       tags: ["Weather", "Forecast", "Climate"]
     },
     {
