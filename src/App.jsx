@@ -1,5 +1,5 @@
-// App.jsx
-import { apis } from './data/data.js'; // import JSON
+import { apis } from './data/data.js';
+import { getStoredApis } from "./data/storage";
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Card from './components/Card';
@@ -13,10 +13,11 @@ const App = () => {
   const categories = ["All", "Gaming", "Weather", "Finance", "Entertainment"];
   const navigate = useNavigate();
 
-  // Load JSON once
   useEffect(() => {
-    setApiData(apis);
-    setFilteredData(apis);
+    const localApis = getStoredApis();
+    const merged = [...apis, ...localApis];
+    setApiData(merged);
+    setFilteredData(merged);
   }, []);
 
   const handleNavigate = (id) => {
@@ -49,9 +50,9 @@ const App = () => {
         />
         <div className='flex-1 overflow-auto p-8'>
           <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-10'>
-            {filteredData.map((api, key) => (
+            {filteredData.map((api) => (
               <Card  
-                key={key}
+                key={api.id}
                 id={api.id}
                 img={api.api_img}
                 title={api.api_title}
