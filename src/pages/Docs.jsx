@@ -1,37 +1,24 @@
-// Docs.jsx
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { apis } from '../data/data.js'; // import JSON
+import { useParams, useNavigate } from "react-router-dom";
+import { apis } from "../data/data";
+import { getStoredApis } from "../data/storage";
+import Navbar from "../components/Navbar";
 
 const Docs = () => {
   const { id } = useParams();
-  const [data, setData] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const api = apis.find(a => a.id === id);
-    if (!api) return setData(null);
+  const localApis = getStoredApis();
+  const allApis = [...apis, ...localApis];
 
-    const enhancedData = {
-      ...api,
-      endpoint: `https://api.example.com/${api.api_title.replace(/\s+/g,'').toLowerCase()}`,
-      method: "GET",
-      requestExample: `{ "param1": "value1" }`,
-      responseExample: `{ "success": true, "data": {} }`,
-      tags: api.tags || [api.api_category]
-    };
+  const api = allApis.find(a => a.id === id);
 
-    setData(enhancedData);
-  }, [id]);
-
-  if (!data) {
+  if (!api) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <h2 className="text-xl font-semibold mb-4">API not found</h2>
-        <button
-          onClick={() => navigate(-1)}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
+      <div className="h-screen flex flex-col justify-center items-center">
+        <h1 className="text-2xl font-bold mb-3">API not found</h1>
+        <button 
+          onClick={() => navigate("/")}
+          className="bg-blue-500 text-white px-4 py-2 rounded">
           Go Back
         </button>
       </div>
@@ -39,48 +26,56 @@ const Docs = () => {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-6 bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
-      >
-        ← Back
-      </button>
+    <>
+      <Navbar />
+      <div className="p-10 max-w-4xl mx-auto">
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-5 bg-gray-200 px-3 py-1 rounded"
+        >
+          ← Back
+        </button>
 
-      <h1 className="text-3xl font-bold mb-2">{data.api_title}</h1>
-      <p className="mb-2"><strong>Category:</strong> {data.api_category}</p>
-      <div className="mb-4">
-        {data.tags.map((tag, index) => (
-          <span key={index} className="inline-block bg-blue-200 text-blue-800 px-2 py-1 rounded mr-2 mb-2">{tag}</span>
-        ))}
-      </div>
-      <p className="mb-4">{data.api_description}</p>
+        <h1 className="text-4xl font-bold mb-2">{api.api_title}</h1>
+        <p className="text-gray-600 mb-4">{api.api_description}</p>
 
-      <div className="mb-4">
-        <p><strong>Endpoint:</strong> <code>{data.endpoint}</code></p>
-        <p><strong>Method:</strong> {data.method}</p>
-      </div>
+        <p><b>Category:</b> {api.api_category}</p>
 
-      <div className="mb-4">
-        <p className="font-semibold mb-1">Request Example:</p>
-        <pre className="bg-gray-100 p-3 rounded text-sm">{data.requestExample}</pre>
-      </div>
+        {api.tags && (
+          <div className="flex gap-2 mt-3">
+            {api.tags.map((t, i) => (
+              <span key={i} className="bg-blue-100 px-3 py-1 rounded text-sm">
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
 
-      <div className="mb-4">
-        <p className="font-semibold mb-1">Response Example:</p>
-        <pre className="bg-gray-100 p-3 rounded text-sm">{data.responseExample}</pre>
-      </div>
-
-      {data.api_img && (
-        <div className="mb-4">
-          <p className="font-semibold mb-2">Image / Screenshot:</p>
-          <img src={data.api_img} alt={data.api_title} className="w-full max-w-md rounded shadow" />
+        <div className="mt-6">
+          <p><b>Endpoint:</b> https://api.example.com/{api.id}</p>
+          <p><b>Method:</b> GET</p>
         </div>
-      )}
-    </div>
+
+        <pre className="bg-gray-100 p-4 mt-4 rounded">
+{`{
+  "param1": "value1"
+}`}
+        </pre>
+
+        <pre className="bg-gray-100 p-4 mt-3 rounded">
+{`{
+  "success": true,
+  "data": {}
+}`}
+        </pre>
+
+        <img src={api.api_img} className="mt-6 rounded shadow w-full" />
+      </div>
+    </>
   );
 };
 
 export default Docs;
+
 
 
